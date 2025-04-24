@@ -1,4 +1,4 @@
-package com.prography.restaurantscraper.external;
+package com.prography.restaurantscraper.common.external;
 
 import feign.RequestInterceptor;
 import org.springframework.beans.factory.annotation.Value;

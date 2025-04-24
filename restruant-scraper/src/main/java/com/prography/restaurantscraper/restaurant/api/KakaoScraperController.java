@@ -2,9 +2,7 @@ package com.prography.restaurantscraper.restaurant.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.prography.restaurantscraper.external.KakaoFeignClient;
 import com.prography.restaurantscraper.restaurant.domain.RawRestaurantData;
-import com.prography.restaurantscraper.restaurant.dto.KakaoPlaceResponse;
 import com.prography.restaurantscraper.restaurant.dto.ScrapScaleDto;
 import com.prography.restaurantscraper.restaurant.repository.RawRestaurantDataRepository;
 import com.prography.restaurantscraper.restaurant.service.RestaurantService;
@@ -23,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class KakaoScraperController {
+
     private final RestaurantService restaurantService;
     private final RawRestaurantDataRepository rawRestaurantDataRepository;
 

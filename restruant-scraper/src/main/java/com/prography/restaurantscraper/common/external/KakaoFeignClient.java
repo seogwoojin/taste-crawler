@@ -1,4 +1,4 @@
-package com.prography.restaurantscraper.external;
+package com.prography.restaurantscraper.common.external;
 
 import com.prography.restaurantscraper.restaurant.dto.KakaoPlaceResponse;
 import org.springframework.cloud.openfeign.FeignClient;

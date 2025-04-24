@@ -2,12 +2,13 @@ package com.prography.restaurantscraper.restaurant.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.prography.restaurantscraper.external.KakaoFeignClient;
+import com.prography.restaurantscraper.common.external.KakaoFeignClient;
 import com.prography.restaurantscraper.restaurant.domain.RawRestaurantData;
 import com.prography.restaurantscraper.restaurant.dto.PlaceData;
 import com.prography.restaurantscraper.restaurant.dto.KakaoPlaceResponse;
 import com.prography.restaurantscraper.restaurant.dto.ScrapScaleDto;
 import com.prography.restaurantscraper.restaurant.repository.RawRestaurantDataRepository;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -53,7 +54,6 @@ public class RestaurantService {
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-
         for (double lat = minLat; lat < maxLat; lat += SMALL_SCALE_FACTOR) {
             for (double lng = minLng; lng < maxLng; lng += SMALL_SCALE_FACTOR) {
                 double fromLat = lat;
@@ -69,13 +69,14 @@ public class RestaurantService {
     }
 
 
-    private CompletableFuture<Void> searchDataAsync(double fromLat, double fromLng, double toLat, double toLng) {
+    private CompletableFuture<Void> searchDataAsync(double fromLat, double fromLng, double toLat,
+        double toLng) {
         // 스레드 실행
         return CompletableFuture.runAsync(() -> {
             try {
                 log.info("check All From " + fromLat + " " + fromLng + " " + toLat + " " + toLng);
                 List<PlaceData> placeList = getAllRestaurantsInRect(
-                    toRectParam(fromLat, fromLng, toLat, toLng));
+                    toRectParam(fromLng, fromLat, toLng, toLat));
                 log.info("Found " + placeList.size() + " restaurant data.");
                 placeList.forEach(this::savePlace);
                 sleepThread();
@@ -103,7 +104,8 @@ public class RestaurantService {
                 rectParam);
         }
         kakaoPlaces.addAll(kakaoPlaceResponse.getDocuments());
-        int endPage = (int) Math.ceil((double) kakaoPlaceResponse.getMeta().getTotal_count() / PAGE_MAX_SIZE);
+        int endPage = (int) Math.ceil(
+            (double) kakaoPlaceResponse.getMeta().getTotal_count() / PAGE_MAX_SIZE);
 
         for (page = 2; page <= endPage; page++) {
             kakaoPlaces.addAll(
@@ -117,8 +119,8 @@ public class RestaurantService {
         return kakaoPlaces;
     }
 
-    private String toRectParam(double fromLat, double fromLng, double toLat, double toLng) {
-        return String.format("%f,%f,%f,%f", fromLat, fromLng, toLat, toLng);
+    private String toRectParam(double fromLng, double fromLat, double toLng, double toLat) {
+        return String.format("%f,%f,%f,%f", fromLng, fromLat, toLng, toLat);
     }
 
     private void savePlace(PlaceData placeData) {
@@ -140,10 +142,11 @@ public class RestaurantService {
         return rawRestaurantDataRepository.existsById(docId);
     }
 
-    private void persistPlace(String docId, PlaceData placeData) {
+    private void persistPlace(String id, PlaceData placeData) {
         try {
-            String placeJson = objectMapper.writeValueAsString(placeData);
-            RawRestaurantData data = new RawRestaurantData(docId, placeJson);
+            Map<String, Object> wrapped = Map.of("placeData", placeData);
+            String placeJson = objectMapper.writeValueAsString(wrapped);
+            RawRestaurantData data = new RawRestaurantData(id, placeJson);
             rawRestaurantDataRepository.save(data);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to serialize place data", e);

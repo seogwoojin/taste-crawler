@@ -5,6 +5,7 @@ import static com.prography.restaurantscraper.common.constant.RawDataConstants.D
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prography.restaurantscraper.naver.dto.PlaceItem;
 import com.prography.restaurantscraper.restaurant.domain.RawRestaurantData;
 import com.prography.restaurantscraper.restaurant.dto.PlaceData;
 import java.util.ArrayList;
@@ -85,5 +86,22 @@ public class CustomRawRestaurantRepository {
             .findFirst(); // placeData가 포함된 첫 번째 JSON 추출
     }
 
+    public Optional<PlaceItem> getNaverDataFromValue(String keyword, String rawData) {
+        String[] split = rawData.split(DATA_SPLITTER);
+        return Arrays.stream(split)
+            .map(jsonData -> {
+                try {
+                    JsonNode root = objectMapper.readTree(jsonData);
+                    if (root.has(keyword)) {
+                        return objectMapper.treeToValue(root.get(keyword), PlaceItem.class);
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to parse part of split JSON: {}", jsonData, e);
+                }
+                return null;
+            })
+            .filter(Objects::nonNull)
+            .findFirst(); // placeData가 포함된 첫 번째 JSON 추출
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.prography.restaurantscraper.naver.service;
 
 import static com.prography.restaurantscraper.common.constant.RawDataConstants.DATA_SPLITTER;
+import static com.prography.restaurantscraper.common.constant.RawDataConstants.NAVER_KEYWORD;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.prography.restaurantscraper.common.external.NaverFeignClient;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class NaverService {
     private final Executor executor;
-    private static final String NAVER_KEYWORD = "naverPlaceInfo";
     private final NaverFeignClient naverFeignClient;
     private final RawRestaurantDataRepository rawRestaurantDataRepository;
     private final CustomRawRestaurantRepository customRawRestaurantRepository;

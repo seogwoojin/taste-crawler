@@ -26,7 +26,6 @@ public class RestaurantService {
     private static final String FOOD_CATEGORY_CODE = "FD6";
     private static final String DELIMITER = "@@";
     private static final int PAGE_MAX_SIZE = 15;
-    private static final String ID_SEPARATOR = "@";
     private static final int THREAD_SLEEP_MILLIS = 10_000;
     private static final int KAKAO_PAGE_SIZE_LIMIT = 45;
 
@@ -124,18 +123,13 @@ public class RestaurantService {
     }
 
     private void savePlace(PlaceData placeData) {
-        String id = getIdFromPlaceData(placeData);
+        String id = placeData.getDocId();
 
         if (isAlreadySaved(id)) {
             log.info("Document with id {} already exists.", id);
             return;
         }
         persistPlace(id, placeData);
-    }
-
-    private String getIdFromPlaceData(PlaceData placeData) {
-        String id = placeData.getAddress_name() + ID_SEPARATOR + placeData.getPlace_name();
-        return id.replace(" ", "_");
     }
 
     private boolean isAlreadySaved(String docId) {
